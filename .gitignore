@@ -1,0 +1,32 @@
+# === CLion & CMake ===
+cmake-build-debug/
+cmake-build-release/
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+Makefile
+*.a
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.dylib
+
+# === JetBrains IDE ===
+.idea/
+*.iml
+
+# === Logs ===
+*.log
+
+# === System ===
+.DS_Store
+Thumbs.db
+
+# === Node (frontend) ===
+node_modules/
+dist/
+build/
+.env
+.vite/
