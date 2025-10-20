@@ -43,7 +43,6 @@ struct SimulationConfig {
     bool autoStart = false;
     int seed = 42;
 
-    // --- JSON сериализация ---
     json to_json() const {
         json sched = json::array();
         for (auto const& s : schedule) {
@@ -100,7 +99,6 @@ struct SimulationConfig {
         if (j.contains("autoStart")) c.autoStart = j["autoStart"];
         if (j.contains("seed")) c.seed = j["seed"];
 
-        // --- Исправлено: очищаем расписание перед добавлением ---
         c.schedule.clear();
         if (j.contains("schedule")) {
             for (auto& s : j["schedule"]) {

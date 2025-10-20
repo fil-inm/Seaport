@@ -3,6 +3,16 @@
 #include <cmath>
 #include <iostream>
 
+namespace termcolor {
+    constexpr const char* reset  = "\033[0m";
+    constexpr const char* gray   = "\033[90m";
+    constexpr const char* cyan   = "\033[36m";
+    constexpr const char* yellow = "\033[33m";
+    constexpr const char* green  = "\033[32m";
+    constexpr const char* blue   = "\033[34m";
+    constexpr const char* magenta= "\033[35m";
+}
+
 int Port::randomJitter(int a, int b) {
     if (a > b) std::swap(a, b);
     std::uniform_int_distribution<int> dist(a, b);
@@ -12,22 +22,20 @@ int Port::randomJitter(int a, int b) {
 int Port::computeUnloadTime(const Ship &s) {
     double rate = 0.0;
     switch (s.type) {
-        case CargoType::BULK: rate = cfg->rateBulk;
-            break;
-        case CargoType::LIQUID: rate = cfg->rateLiquid;
-            break;
-        case CargoType::CONTAINER: rate = cfg->rateContainer;
-            break;
+        case CargoType::BULK: rate = cfg->rateBulk; break;
+        case CargoType::LIQUID: rate = cfg->rateLiquid; break;
+        case CargoType::CONTAINER: rate = cfg->rateContainer; break;
     }
 
-    int base = static_cast<int>(std::round(s.weight * rate));
+    int base = static_cast<int>(std::round(s.weight / rate));
+
     int extra = 0;
     if (cfg->unloadExtraMax > cfg->unloadExtraMin)
         extra = randomJitter(cfg->unloadExtraMin, cfg->unloadExtraMax);
+
     return std::max(1, base + extra);
 }
 
-// === public ===
 void Port::setConfig(SimulationConfig *c) {
     cfg = c;
     rng.seed(cfg->seed);
@@ -44,6 +52,7 @@ void Port::reset() {
     while (!qLiquid.empty()) qLiquid.pop();
     while (!qContainer.empty()) qContainer.pop();
 
+    // --- создаём краны ---
     for (int i = 0; i < cfg->cranesBulk; ++i)
         cranes.push_back({CargoType::BULK, false, 0});
     for (int i = 0; i < cfg->cranesLiquid; ++i)
@@ -62,8 +71,36 @@ void Port::reset() {
         ships.push_back(s);
     }
 
-    std::cout << "⚓ Порт инициализирован: " << ships.size() << " кораблей, "
-            << cranes.size() << " кранов" << std::endl;
+    using namespace std;
+    cout << "\n⚓ Порт инициализирован\n";
+    cout << "───────────────────────────────────────────────\n";
+    cout << "📦 Кораблей: " << ships.size()
+         << "   ⚙️  Кранов: " << cranes.size() << "\n";
+    cout << "───────────────────────────────────────────────\n";
+
+    for (auto const &s : ships) {
+        string typeIcon, typeName;
+        switch (s.type) {
+            case CargoType::BULK: typeIcon = "⛏"; typeName = "BULK"; break;
+            case CargoType::LIQUID: typeIcon = "🛢"; typeName = "LIQUID"; break;
+            case CargoType::CONTAINER: typeIcon = "📦"; typeName = "CONTAINER"; break;
+        }
+
+        cout << typeIcon << " " << setw(10) << left << s.name
+             << " | " << setw(10) << left << typeName
+             << " | Прибытие: " << setw(5) << s.arrival
+             << " → " << setw(5) << s.actualArrival
+             << " | Вес: " << setw(7) << s.weight
+             << " | Разгрузка: " << s.unloadTime << " мин"
+             << "\n";
+    }
+
+    cout << "───────────────────────────────────────────────\n";
+    cout << "🔩 Краны:\n";
+    cout << "  • BULK: " << cfg->cranesBulk << "\n";
+    cout << "  • LIQUID: " << cfg->cranesLiquid << "\n";
+    cout << "  • CONTAINER: " << cfg->cranesContainer << "\n";
+    cout << "───────────────────────────────────────────────\n\n";
 }
 
 void Port::simulateStep(int delta) {
@@ -85,26 +122,37 @@ void Port::simulateStep(int delta) {
 }
 
 void Port::enqueueArrivals() {
-    for (int i = 0; i < (int) ships.size(); ++i) {
+    using namespace std;
+    using namespace termcolor;
+
+    for (int i = 0; i < (int)ships.size(); ++i) {
         auto &s = ships[i];
         if (!s.finished && !s.unloading && !s.inQueue && s.actualArrival <= now) {
             s.inQueue = true;
             switch (s.type) {
-                case CargoType::BULK: qBulk.push(i);
-                    break;
-                case CargoType::LIQUID: qLiquid.push(i);
-                    break;
-                case CargoType::CONTAINER: qContainer.push(i);
-                    break;
+                case CargoType::BULK: qBulk.push(i); break;
+                case CargoType::LIQUID: qLiquid.push(i); break;
+                case CargoType::CONTAINER: qContainer.push(i); break;
             }
-            std::cout << "🛳 Прибыл корабль: " << s.name << std::endl;
+
+            string typeIcon =
+                (s.type == CargoType::BULK)      ? "⛏" :
+                (s.type == CargoType::LIQUID)    ? "🛢" : "📦";
+
+            cout << blue << "🕓 [t=" << setw(5) << now << "] "
+                 << termcolor::reset << typeIcon << " "
+                 << setw(10) << left << s.name
+                 << " — прибыл в порт (очередь: " << typeIcon << ")" << endl;
         }
     }
 }
 
 void Port::tryAssignCranes() {
+    using namespace std;
+    using namespace termcolor;
+
     auto popQ = [&](CargoType t, int &idx) -> bool {
-        std::queue<int>* q = nullptr;
+        queue<int>* q = nullptr;
         if (t == CargoType::BULK) q = &qBulk;
         else if (t == CargoType::LIQUID) q = &qLiquid;
         else q = &qContainer;
@@ -112,11 +160,8 @@ void Port::tryAssignCranes() {
         while (!q->empty()) {
             int front = q->front();
             q->pop();
-
             auto &s = ships[front];
-            // ⚠️ если уже разгружается, завершён или назначен — пропускаем
             if (s.unloading || s.finished || s.assigned) continue;
-
             idx = front;
             return true;
         }
@@ -128,11 +173,9 @@ void Port::tryAssignCranes() {
 
         int idx = -1;
         if (!popQ(c.type, idx)) continue;
-
         auto &s = ships[idx];
         if (s.unloading || s.finished || s.assigned) continue;
 
-        // 🏗 Назначаем
         s.inQueue = false;
         s.unloading = true;
         s.assigned = true;
@@ -142,28 +185,56 @@ void Port::tryAssignCranes() {
         c.busy = true;
         c.busyUntil = *s.finish;
 
-        std::cout << "🏗 Назначен " << s.name
-                  << " в док ("
-                  << (c.type == CargoType::BULK ? "BULK" :
-                      c.type == CargoType::LIQUID ? "LIQUID" : "CONTAINER")
-                  << ") до " << *s.finish << std::endl;
+        string typeStr =
+            (c.type == CargoType::BULK)      ? "BULK" :
+            (c.type == CargoType::LIQUID)    ? "LIQUID" : "CONTAINER";
+
+        string typeIcon =
+            (c.type == CargoType::BULK)      ? "⛏" :
+            (c.type == CargoType::LIQUID)    ? "🛢" : "📦";
+
+        cout << cyan << "🕓 [t=" << setw(5) << now << "] "
+             << termcolor::reset << "🏗 " << typeIcon << " Назначен "
+             << setw(10) << left << s.name
+             << " → док " << typeStr
+             << " (⏱ до " << *s.finish << ")" << endl;
     }
 }
 
 void Port::completeFinished() {
-    for (auto &s : ships)
+    using namespace std;
+    using namespace termcolor;
+
+    for (auto &s : ships) {
         if (s.unloading && s.finish && *s.finish <= now) {
             s.unloading = false;
             s.finished = true;
-            s.assigned = false; // 👈 сбрасываем для будущих симуляций
-            std::cout << "✅ Завершена разгрузка: " << s.name << std::endl;
+            s.assigned = false;
+
+            string icon =
+                (s.type == CargoType::BULK)      ? "⛏" :
+                (s.type == CargoType::LIQUID)    ? "🛢" : "📦";
+
+            cout << green << "🕓 [t=" << setw(5) << now << "] "
+                 << termcolor::reset << "✅ Завершена разгрузка: "
+                 << icon << " " << s.name << endl;
         }
+    }
 }
 
 void Port::accrueFine() {
+    using namespace std;
+    using namespace termcolor;
+
+    double prevFine = fine;
     for (auto const &s: ships)
         if (!s.finished && !s.unloading && s.actualArrival <= now)
             fine += cfg->finePerMinute * cfg->step;
+
+    if (fine > prevFine) {
+        cout << yellow << "💰 Начислен штраф: +" << (fine - prevFine)
+             << " (итого: " << fine << ")" << termcolor::reset << endl;
+    }
 }
 
 json Port::getState() const {

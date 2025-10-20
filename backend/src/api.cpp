@@ -92,20 +92,14 @@ void setup_routes(httplib::Server& app) {
         res.status = 200;
     }));
 
-    app.Post("/step", withLogging([](const httplib::Request& req, httplib::Response& res) {
-        add_cors(res);
-        int dt = config.step;
-        if (!req.body.empty()) {
-            try {
-                auto j = json::parse(req.body);
-                if (j.contains("dt")) dt = j["dt"];
-            } catch (...) {}
-        }
-        if (req.has_param("dt")) dt = std::stoi(req.get_param_value("dt"));
-        port.simulateStep(dt);
-        res.set_content(port.getState().dump(2), "application/json");
-        res.status = 200;
-    }));
+    app.Post("/step", withLogging([](const httplib::Request&, httplib::Response& res) {
+    add_cors(res);
+
+    port.simulateStep(config.step);
+
+    res.set_content(port.getState().dump(2), "application/json");
+    res.status = 200;
+}));
 
     app.Post("/reset", withLogging([](const httplib::Request&, httplib::Response& res) {
         add_cors(res);

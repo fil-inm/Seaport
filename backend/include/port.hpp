@@ -19,7 +19,7 @@ struct Ship {
     bool inQueue = false;
     bool unloading = false;
     bool finished = false;
-    bool assigned = false; // 👈 добавь вот это
+    bool assigned = false;
     std::optional<int> startUnload;
     std::optional<int> finish;
 };
