@@ -9,18 +9,17 @@
 
 using json = nlohmann::json;
 
-
-
 struct Ship {
     std::string name;
     CargoType type;
-    int arrival = 0;        // запланированное прибытие
-    int actualArrival = 0;  // с джиттером
-    int weight = 0;         // кг
-    int unloadTime = 0;     // мин
+    int arrival = 0;
+    int actualArrival = 0;
+    int weight = 0;
+    int unloadTime = 0;
     bool inQueue = false;
     bool unloading = false;
     bool finished = false;
+    bool assigned = false; // 👈 добавь вот это
     std::optional<int> startUnload;
     std::optional<int> finish;
 };
@@ -28,13 +27,13 @@ struct Ship {
 struct Crane {
     CargoType type;
     bool busy = false;
-    int busyUntil = 0; // минута, когда освободится
+    int busyUntil = 0;
 };
 
 class Port {
 public:
-    int now = 0;         // текущее время (мин)
-    double fine = 0.0;   // суммарный штраф
+    int now = 0;
+    double fine = 0.0;
     SimulationConfig* cfg = nullptr;
 
     std::vector<Ship> ships;
@@ -43,7 +42,6 @@ public:
     std::queue<int> qBulk, qLiquid, qContainer;
     std::mt19937 rng{std::random_device{}()};
 
-    // --- Основные методы ---
     void setConfig(SimulationConfig* c);
     void reset();
     void simulateStep(int delta);

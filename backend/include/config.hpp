@@ -14,39 +14,32 @@ namespace tmux {
 enum class CargoType { BULK, LIQUID, CONTAINER };
 
 struct SimulationConfig {
-    // === Параметры времени ===
     int totalDuration = 30 * tmux::DAY;
-    int step = 15; // минута моделирования
+    int step = 15;
 
-    // === Краны ===
     int cranesBulk = 2;
     int cranesLiquid = 2;
     int cranesContainer = 1;
 
-    // === Случайные отклонения ===
     int arrivalJitterMin = -2 * tmux::DAY;
     int arrivalJitterMax =  9 * tmux::DAY;
     int unloadExtraMin   = 0;
     int unloadExtraMax   = 12 * tmux::HOUR;
 
-    // === Скорость разгрузки (минуты за кг) ===
     double rateBulk = 0.02;
     double rateLiquid = 0.015;
     double rateContainer = 0.03;
 
-    // === Штраф ===
     double finePerMinute = 2000.0 / tmux::DAY;
 
-    // === Расписание ===
     struct ShipPlan {
         std::string name;
         CargoType type;
-        int arrival; // минуты
-        int weight;  // кг
+        int arrival;
+        int weight;
     };
     std::vector<ShipPlan> schedule;
 
-    // === Прочее ===
     bool autoStart = false;
     int seed = 42;
 
@@ -90,6 +83,7 @@ struct SimulationConfig {
 
     static SimulationConfig from_json(const json& j) {
         SimulationConfig c;
+
         if (j.contains("totalDuration")) c.totalDuration = j["totalDuration"];
         if (j.contains("step")) c.step = j["step"];
         if (j.contains("cranesBulk")) c.cranesBulk = j["cranesBulk"];
@@ -106,16 +100,21 @@ struct SimulationConfig {
         if (j.contains("autoStart")) c.autoStart = j["autoStart"];
         if (j.contains("seed")) c.seed = j["seed"];
 
+        // --- Исправлено: очищаем расписание перед добавлением ---
+        c.schedule.clear();
         if (j.contains("schedule")) {
             for (auto& s : j["schedule"]) {
                 SimulationConfig::ShipPlan sp;
                 sp.name = s["name"];
+
                 std::string t = s["type"];
                 if (t == "BULK") sp.type = CargoType::BULK;
                 else if (t == "LIQUID") sp.type = CargoType::LIQUID;
                 else sp.type = CargoType::CONTAINER;
+
                 sp.arrival = s["arrival"];
                 sp.weight = s["weight"];
+
                 c.schedule.push_back(sp);
             }
         }

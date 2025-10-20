@@ -4,7 +4,7 @@ import PortSimulation from "./components/PortSimulation";
 import {Settings, Anchor, Waves} from "lucide-react"; // ✅ заменили иконки
 
 export default function App() {
-    const [activeTab, setActiveTab] = useState<"config" | "simulation">("config");
+    const [activeTab, setActiveTab] = useState<"config" | "simulation">("simulation");
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
