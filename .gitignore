@@ -1,32 +1,60 @@
-# === CLion & CMake ===
-cmake-build-debug/
-cmake-build-release/
-CMakeFiles/
-CMakeCache.txt
-*.cmake
-Makefile
-*.a
-*.o
-*.obj
-*.so
-*.dll
-*.exe
-*.dylib
-
-# === JetBrains IDE ===
-.idea/
-*.iml
-
-# === Logs ===
-*.log
-
-# === System ===
+# ======== Общие ========
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
 
-# === Node (frontend) ===
+# ======== Git ========
+# Игнорировать всё, что создаёт система контроля версий
+.gitignore
+*.orig
+
+# ======== Node / Frontend ========
 node_modules/
-dist/
-build/
-.env
-.vite/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.cache/
+frontend/.vite/
+*.tsbuildinfo
+
+# ======== Backend (C++ / CMake / CLion) ========
+backend/cmake-build-debug/
+backend/cmake-build-release/
+backend/build/
+backend/.cache/
+backend/*.o
+backend/*.obj
+backend/*.exe
+backend/*.out
+backend/*.log
+backend/.vscode/
+backend/.idea/
+
+# ======== System / OS ========
+*.lock
+*.pid
+*.seed
+*.iml
+__pycache__/
+*.pyc
+*.class
+
+# ======== Misc ========
+# MacOS system files
+ehthumbs.db
+Icon?
+*.icloud
+
+# ======== Output / Temporary ========
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
