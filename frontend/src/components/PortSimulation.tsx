@@ -281,21 +281,31 @@ const PortSimulation: React.FC = () => {
                         </h3>
                         <AnimatePresence>
                             {state.cranes.map((c, i) => {
-                                const assigned = unloading.find(s => s.type === c.type && s.unloading);
+                                // Берём все корабли, которые сейчас разгружаются этого типа
+                                const sameTypeShips = unloading.filter(s => s.type === c.type);
+
+                                // Назначаем каждому крану корабль по индексу, если есть
+                                const assigned = sameTypeShips[i - state.cranes.findIndex(cr => cr.type === c.type)] || null;
+
                                 return (
                                     <motion.div
                                         key={i}
                                         layout
-                                        className={`border-2 rounded-xl p-3 mb-2 ${assigned ? cargoColor(assigned.type) : "bg-gray-100 border-gray-300"}`}
+                                        className={`border-2 rounded-xl p-3 mb-2 ${
+                                            assigned ? cargoColor(assigned.type) : "bg-gray-100 border-gray-300"
+                                        }`}
                                     >
                                         <div className="flex justify-between items-center mb-1">
                                             <span className="font-semibold">Док {i + 1}</span>
                                             <span className="text-xs opacity-70">{c.type}</span>
                                         </div>
+
                                         {assigned ? (
                                             <>
                                                 <p className="text-xs text-gray-700">Корабль: {assigned.name}</p>
-                                                <p className="text-xs text-gray-700">Вес: {assigned.weight} кг</p>
+                                                <p className="text-xs text-gray-700">
+                                                    Вес: {assigned.weight.toLocaleString()} кг
+                                                </p>
                                             </>
                                         ) : (
                                             <p className="text-xs text-gray-400">Свободен</p>
