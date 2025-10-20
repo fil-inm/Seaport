@@ -26,9 +26,9 @@ struct SimulationConfig {
     int unloadExtraMin   = 0;
     int unloadExtraMax   = 12 * tmux::HOUR;
 
-    double rateBulk = 0.02;
-    double rateLiquid = 0.015;
-    double rateContainer = 0.03;
+    double rateBulk = 21;
+    double rateLiquid = 35;
+    double rateContainer = 49;
 
     double finePerMinute = 2000.0 / tmux::DAY;
 
