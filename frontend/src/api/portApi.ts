@@ -13,3 +13,19 @@ export async function saveConfig(config: any) {
     });
     return await res.json();
 }
+
+
+export const getState = async () => {
+    const res = await fetch(`${API_URL}/state`);
+    return res.json();
+};
+
+export const stepSimulation = async () => {
+    const res = await fetch(`${API_URL}/step`, { method: "POST" });
+    return res.json();
+};
+
+export const resetSimulation = async () => {
+    const res = await fetch(`${API_URL}/reset`, { method: "POST" });
+    return res.json();
+};

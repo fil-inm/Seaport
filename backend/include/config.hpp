@@ -122,4 +122,21 @@ struct SimulationConfig {
 
         return c;
     }
+
+    SimulationConfig() {
+        schedule = {
+            {"Aurora",      CargoType::BULK,      1,        450000},
+            {"Poseidon",    CargoType::LIQUID,    720,      600000},
+            {"Mercury",     CargoType::CONTAINER, 1440,     220000},
+            {"Orion",       CargoType::BULK,      2160,     520000},
+            {"Neptune",     CargoType::LIQUID,    2880,     780000},
+            {"Vega",        CargoType::CONTAINER, 3600,     310000},
+            {"Sirius",      CargoType::BULK,      4320,     480000},
+            {"Andromeda",   CargoType::LIQUID,    5040,     640000},
+            {"Titan",       CargoType::CONTAINER, 5760,     260000},
+            {"Altair",      CargoType::BULK,      6480,     570000},
+            {"Nereid",      CargoType::LIQUID,    7200,     700000},
+            {"Callisto",    CargoType::CONTAINER, 7920,     280000}
+        };
+    }
 };
