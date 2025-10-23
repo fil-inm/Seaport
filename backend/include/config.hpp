@@ -14,7 +14,6 @@ namespace tmux {
 enum class CargoType { BULK, LIQUID, CONTAINER };
 
 struct SimulationConfig {
-    int totalDuration = 30 * tmux::DAY;
     int step = 15;
 
     int cranesBulk = 2;
@@ -61,7 +60,7 @@ struct SimulationConfig {
         }
 
         return {
-            {"totalDuration", totalDuration},
+            {"seed", seed},
             {"step", step},
             {"cranesBulk", cranesBulk},
             {"cranesLiquid", cranesLiquid},
@@ -83,7 +82,7 @@ struct SimulationConfig {
     static SimulationConfig from_json(const json& j) {
         SimulationConfig c;
 
-        if (j.contains("totalDuration")) c.totalDuration = j["totalDuration"];
+        if (j.contains("seed")) c.seed = j["seed"];
         if (j.contains("step")) c.step = j["step"];
         if (j.contains("cranesBulk")) c.cranesBulk = j["cranesBulk"];
         if (j.contains("cranesLiquid")) c.cranesLiquid = j["cranesLiquid"];

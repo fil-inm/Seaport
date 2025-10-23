@@ -18,7 +18,7 @@ const ConfigEditor: React.FC = () => {
                 setConfig(data);
                 setLoading(false);
             });
-        }, 500); // полсекунды — чтобы спиннер точно успел показаться
+        }, 500);
     }, []);
 
     const updateField = (field: string, value: any) => {
@@ -75,19 +75,18 @@ const ConfigEditor: React.FC = () => {
                     {/* Время */}
                     <div className="bg-white rounded-2xl shadow p-5">
                         <h3 className="flex items-center gap-2 text-lg font-semibold mb-3">
-                            <Clock className="text-blue-500" /> Время моделирования
+                            <Clock className="text-blue-500" /> Общая информация
                         </h3>
-                        <label className="text-sm text-gray-600">Общая длительность</label>
+                        <label className="text-sm text-gray-600">Зерно случайных чисел</label>
                         <div className="flex items-center gap-2 mt-1 mb-3">
                             <input
                                 type="number"
-                                value={config.totalDuration}
+                                value={config.seed}
                                 onChange={(e) =>
-                                    updateField("totalDuration", Number(e.target.value))
+                                    updateField("seed", Number(e.target.value))
                                 }
                                 className="border rounded-md p-2 w-full"
                             />
-                            <span className="text-gray-500 text-sm">мин</span>
                         </div>
 
                         <label className="text-sm text-gray-600">Шаг симуляции</label>
