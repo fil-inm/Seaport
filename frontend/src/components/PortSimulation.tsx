@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
     Play, RotateCcw, StepForward,
-    Clock, DollarSign, Ship, Hammer, Droplets, Package, Scale, Loader, Waves
+    Clock, DollarSign, Ship, Hammer, Droplets, Package, Scale, Loader, Waves, TextQuote, BookText, FileDown
 } from "lucide-react";
 import { getState, stepSimulation, resetSimulation } from "../api/portApi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -108,22 +108,29 @@ const PortSimulation: React.FC = () => {
             if (!prevShip) return;
 
             if (!prevShip.inQueue && s.inQueue && !s.unloading && !s.finished)
-                logOnce(`${s.name}-arrived`, `🛳 ${s.name} прибыл в порт`);
+                logOnce(`${s.name}-arrived`,
+                    `[${formatTime(newState.now)}] ${s.name} прибыл в порт`
+                );
 
             if (!prevShip.unloading && s.unloading)
-                logOnce(`${s.name}-start`, `🏗️ ${s.name} начал разгрузку`);
+                logOnce(`${s.name}-start`,
+                    `[${formatTime(newState.now)}] ${s.name} начал разгрузку`
+                );
 
             if (!prevShip.finished && s.finished) {
                 const wait = s.startUnload > 0 ? s.startUnload - s.actualArrival : 0;
                 const unload = s.finish > 0 ? s.finish - s.startUnload : s.unloadTime;
+
+
                 logOnce(`${s.name}-done`,
-                    `✅ ${s.name}: прибыл ${s.actualArrival}, ожидал ${wait} мин, разгрузка ${unload} мин`
+                    `[${formatTime(newState.now)}] ${s.name}: прибыл ${formatTime(s.actualArrival)}, ожидал ${formatTime(wait)}, разгрузка ${formatTime(unload)}`
                 );
             }
+
         });
 
         const allDone = newState.ships.every(s => s.finished);
-        if (allDone && running) {
+        if (allDone) {
             setRunning(false);
             if (intervalRef.current) clearInterval(intervalRef.current);
 
@@ -134,17 +141,21 @@ const PortSimulation: React.FC = () => {
             const avgDelay = delays.reduce((a, b) => a + b, 0) / total;
             const maxDelay = Math.max(...delays);
 
-            const summary = `📊 Итоги:
-🚢 Разгружено судов: ${total}
-⏳ Среднее ожидание: ${avgWait.toFixed(1)} мин
-⚓ Макс. задержка: ${maxDelay.toFixed(1)} мин
-🕓 Средняя задержка: ${avgDelay.toFixed(1)} мин
-💰 Общий штраф: ${newState.fine.toFixed(1)} у.е.`;
+            const summary = `Итоги:
+Разгружено судов: ${total}
+Среднее ожидание: ${avgWait.toFixed(1)} мин
+Макс. задержка: ${maxDelay.toFixed(1)} мин
+Средняя задержка: ${avgDelay.toFixed(1)} мин
+Общий штраф: ${newState.fine.toFixed(1)} у.е.`;
 
             if (!loggedEvents.current.has("summary")) {
                 loggedEvents.current.add("summary");
                 setLog(prev => [...prev, summary]);
                 setFinalStats(summary);
+
+                console.log("📜 LOG at summary:", log);
+                console.log("📊 FINAL STATS:", summary);
+
                 setShowPopup(true);
             }
         }
@@ -358,7 +369,8 @@ const PortSimulation: React.FC = () => {
                             exit={{ scale: 0.8, opacity: 0 }}
                             className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto text-center"
                         >
-                            <h2 className="text-2xl font-semibold mb-4">📊 Итоги моделирования</h2>
+                            <h2 className="text-2xl font-semibold mb-4 text-lg flex items-center gap-2"><TextQuote /> Итоги моделирования</h2>
+
 
                             {/* --- Итоговая статистика --- */}
                             <pre className="text-left bg-gray-50 rounded-xl p-4 text-sm mb-6 whitespace-pre-wrap">
@@ -367,9 +379,8 @@ const PortSimulation: React.FC = () => {
 
                             {/* --- Полный лог симуляции --- */}
                             <div className="text-left bg-gray-50 rounded-xl p-4 text-sm mb-6 whitespace-pre-wrap max-h-64 overflow-y-auto">
-                                <h3 className="font-semibold text-lg mb-3 text-gray-800">📜 Полный журнал событий</h3>
+                                <h3 className="flex items-center gap-2 text-2xl font-semibold text-lg mb-3 text-gray-800"><BookText /> Полный журнал событий</h3>
                                 {log
-                                    .filter(line => !line.includes("📊")) // чтобы не дублировать финальные итоги
                                     .map((line, i) => (
                                         <div
                                             key={i}
@@ -390,7 +401,7 @@ const PortSimulation: React.FC = () => {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        const content = `=== Итоги моделирования ===\n\n${finalStats}\n\n=== Полный журнал ===\n${log.join(
+                                        const content = `=== Полный журнал ===\n${log.join(
                                             "\n"
                                         )}`;
                                         const blob = new Blob([content], { type: "text/plain" });
@@ -403,7 +414,10 @@ const PortSimulation: React.FC = () => {
                                     }}
                                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-xl font-medium shadow"
                                 >
-                                    💾 Скачать лог
+
+                                    <h3 className="flex items-center gap-2 text-2xl font-semibold text-lg text-gray-800"><FileDown /> Скачать лог</h3>
+
+
                                 </button>
                             </div>
                         </motion.div>
