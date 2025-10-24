@@ -33,7 +33,9 @@ backend/*.o
 backend/*.obj
 backend/*.exe
 backend/*.out
+backend/out/
 backend/*.log
+backend/compile_commands.json
 backend/.vscode/
 backend/.idea/
 
