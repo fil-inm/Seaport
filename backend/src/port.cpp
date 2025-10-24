@@ -82,28 +82,28 @@ void Port::reset() {
   }
 
   for (auto const &plan : cfg->schedule) {
-    Ship s;
-    s.name = plan.name;
-    s.type = plan.type;
-    s.arrival = plan.arrival;
-    s.weight = plan.weight;
-    s.actualArrival =
-        std::max(0, s.arrival + randomJitter(cfg->arrivalJitterMin,
-                                             cfg->arrivalJitterMax));
-    s.unloadTime = computeUnloadTime(s);
-    ships.push_back(s);
+    Ship ship;
+    ship.name = plan.name;
+    ship.type = plan.type;
+    ship.arrival = plan.arrival;
+    ship.weight = plan.weight;
+    ship.actualArrival =
+        std::max(0, ship.arrival + randomJitter(cfg->arrivalJitterMin,
+                                                cfg->arrivalJitterMax));
+    ship.unloadTime = computeUnloadTime(ship);
+    ships.push_back(ship);
   }
 
-  using namespace std;
-  cout << "\n⚓ Порт инициализирован\n";
-  cout << "───────────────────────────────────────────────\n";
-  cout << "📦 Кораблей: " << ships.size() << "   ⚙️  Кранов: " << cranes.size()
-       << "\n";
-  cout << "───────────────────────────────────────────────\n";
+  std::cout << "\n⚓ Порт инициализирован\n";
+  std::cout << "───────────────────────────────────────────────\n";
+  std::cout << "📦 Кораблей: " << ships.size()
+            << "   ⚙️  Кранов: " << cranes.size() << "\n";
+  std::cout << "───────────────────────────────────────────────\n";
 
-  for (auto const &s : ships) {
-    string typeIcon, typeName;
-    switch (s.type) {
+  for (auto const &shipEl : ships) {
+    std::string typeIcon;
+    std::string typeName;
+    switch (shipEl.type) {
     case CargoType::BULK:
       typeIcon = "⛏";
       typeName = "BULK";
@@ -118,24 +118,27 @@ void Port::reset() {
       break;
     }
 
-    cout << typeIcon << " " << setw(10) << left << s.name << " | " << setw(10)
-         << left << typeName << " | Прибытие: " << setw(5) << s.arrival << " → "
-         << setw(5) << s.actualArrival << " | Вес: " << setw(7) << s.weight
-         << " | Разгрузка: " << s.unloadTime << " мин"
-         << "\n";
+    std::cout << typeIcon << " " << std::setw(10) << std::left << shipEl.name
+              << " | " << std::setw(10) << std::left << typeName
+              << " | Прибытие: " << std::setw(5) << shipEl.arrival << " → "
+              << std::setw(5) << shipEl.actualArrival
+              << " | Вес: " << std::setw(7) << shipEl.weight
+              << " | Разгрузка: " << shipEl.unloadTime << " мин"
+              << "\n";
   }
 
-  cout << "───────────────────────────────────────────────\n";
-  cout << " Краны:\n";
-  cout << "  • BULK: " << cfg->cranesBulk << "\n";
-  cout << "  • LIQUID: " << cfg->cranesLiquid << "\n";
-  cout << "  • CONTAINER: " << cfg->cranesContainer << "\n";
-  cout << "───────────────────────────────────────────────\n\n";
+  std::cout << "───────────────────────────────────────────────\n";
+  std::cout << " Краны:\n";
+  std::cout << "  • BULK: " << cfg->cranesBulk << "\n";
+  std::cout << "  • LIQUID: " << cfg->cranesLiquid << "\n";
+  std::cout << "  • CONTAINER: " << cfg->cranesContainer << "\n";
+  std::cout << "───────────────────────────────────────────────\n\n";
 }
 
 void Port::simulateStep(int delta) {
-  if (!cfg || delta <= 0)
+  if ((cfg == nullptr) || delta <= 0) {
     return;
+  }
 
   now += delta;
 
