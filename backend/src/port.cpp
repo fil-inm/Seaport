@@ -142,9 +142,11 @@ void Port::simulateStep(int delta) {
 
   now += delta;
 
-  for (auto &c : cranes)
-    if (c.busy && c.busyUntil <= now)
-      c.busy = false;
+  for (auto &craneEl : cranes) {
+    if (craneEl.busy && craneEl.busyUntil <= now) {
+      craneEl.busy = false;
+    }
+  }
 
   enqueueArrivals();
 
@@ -156,8 +158,6 @@ void Port::simulateStep(int delta) {
 }
 
 void Port::enqueueArrivals() {
-  using namespace std;
-  using namespace termcolor;
 
   for (int i = 0; i < (int)ships.size(); ++i) {
     auto &s = ships[i];
@@ -175,23 +175,21 @@ void Port::enqueueArrivals() {
         break;
       }
 
-      string typeIcon = (s.type == CargoType::BULK)     ? "⛏"
+      std::string typeIcon = (s.type == CargoType::BULK)     ? "⛏"
                         : (s.type == CargoType::LIQUID) ? "🛢"
                                                         : "📦";
 
-      cout << blue << "🕓 [t=" << setw(5) << now << "] " << termcolor::reset
-           << typeIcon << " " << setw(10) << left << s.name
-           << " — прибыл в порт (очередь: " << typeIcon << ")" << endl;
+        std::cout << termcolor::blue << "🕓 [t=" << std::setw(5) << now << "] " << termcolor::reset
+           << typeIcon << " " << std::setw(10) << std::left << s.name
+           << " — прибыл в порт (очередь: " << typeIcon << ")" << '\n';
     }
   }
 }
 
 void Port::tryAssignCranes() {
-  using namespace std;
-  using namespace termcolor;
 
   auto popQ = [&](CargoType t, int &idx) -> bool {
-    queue<int> *q = nullptr;
+    std::queue<int> *q = nullptr;
     if (t == CargoType::BULK)
       q = &qBulk;
     else if (t == CargoType::LIQUID)
@@ -231,52 +229,46 @@ void Port::tryAssignCranes() {
     c.busy = true;
     c.busyUntil = *s.finish;
 
-    string typeStr = (c.type == CargoType::BULK)     ? "BULK"
+    std::string typeStr = (c.type == CargoType::BULK)     ? "BULK"
                      : (c.type == CargoType::LIQUID) ? "LIQUID"
                                                      : "CONTAINER";
 
-    string typeIcon = (c.type == CargoType::BULK)     ? "⛏"
+    std::string typeIcon = (c.type == CargoType::BULK)     ? "⛏"
                       : (c.type == CargoType::LIQUID) ? "🛢"
                                                       : "📦";
 
-    cout << cyan << "🕓 [t=" << setw(5) << now << "] " << termcolor::reset
-         << "🏗 " << typeIcon << " Назначен " << setw(10) << left << s.name
-         << " → док " << typeStr << " (⏱ до " << *s.finish << ")" << endl;
+    std::cout << termcolor::cyan << "🕓 [t=" << std::setw(5) << now << "] " << termcolor::reset
+         << "🏗 " << typeIcon << " Назначен " << std::setw(10) << std::left << s.name
+         << " → док " << typeStr << " (⏱ до " << *s.finish << ")" << '\n';
   }
 }
 
 void Port::completeFinished() {
-  using namespace std;
-  using namespace termcolor;
-
   for (auto &s : ships) {
     if (s.unloading && s.finish && *s.finish <= now) {
       s.unloading = false;
       s.finished = true;
       s.assigned = false;
 
-      string icon = (s.type == CargoType::BULK)     ? "⛏"
+      std::string icon = (s.type == CargoType::BULK)     ? "⛏"
                     : (s.type == CargoType::LIQUID) ? "🛢"
                                                     : "📦";
 
-      cout << green << "🕓 [t=" << setw(5) << now << "] " << termcolor::reset
-           << "✅ Завершена разгрузка: " << icon << " " << s.name << endl;
+      std::cout << termcolor::green << "🕓 [t=" << std::setw(5) << now << "] " << termcolor::reset
+           << "✅ Завершена разгрузка: " << icon << " " << s.name << '\n';
     }
   }
 }
 
 void Port::accrueFine() {
-  using namespace std;
-  using namespace termcolor;
-
   double prevFine = fine;
   for (auto const &s : ships)
     if (!s.finished && !s.unloading && s.actualArrival <= now)
       fine += cfg->finePerMinute * cfg->step;
 
   if (fine > prevFine) {
-    cout << yellow << "💰 Начислен штраф: +" << (fine - prevFine)
-         << " (итого: " << fine << ")" << termcolor::reset << endl;
+    std::cout << termcolor::yellow << "Начислен штраф: +" << (fine - prevFine)
+         << " (итого: " << fine << ")" << termcolor::reset << '\n';
   }
 }
 
