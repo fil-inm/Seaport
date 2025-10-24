@@ -11,7 +11,6 @@ const ConfigEditor: React.FC = () => {
     const [savedMessage, setSavedMessage] = useState(false);
 
     useEffect(() => {
-        // Добавим искусственную задержку для демонстрации загрузчика
         setLoading(true);
         setTimeout(() => {
             fetchConfig().then((data) => {
@@ -31,7 +30,7 @@ const ConfigEditor: React.FC = () => {
         await saveConfig(config);
         setSaving(false);
         setSavedMessage(true);
-        setTimeout(() => setSavedMessage(false), 2500); // уведомление исчезнет через 2.5 с
+        setTimeout(() => setSavedMessage(false), 2500);
     };
 
     const canSave = () => {
@@ -70,7 +69,7 @@ const ConfigEditor: React.FC = () => {
                     Настройка параметров симуляции порта
                 </h1>
 
-                {/* --- Основные параметры --- */}
+                {/* Основные параметры */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {/* Время */}
                     <div className="bg-white rounded-2xl shadow p-5">
@@ -163,13 +162,13 @@ const ConfigEditor: React.FC = () => {
                     </div>
                 </div>
 
-                {/* --- Таблица кораблей --- */}
+                {/* Таблица кораблей */}
                 <ShipScheduleTable
                     ships={config.schedule || []}
                     onChange={(ships) => updateField("schedule", ships)}
                 />
 
-                {/* --- Кнопка сохранения --- */}
+                {/* Сохранения */}
                 <div className="mt-8 text-right relative">
                     <button
                         onClick={handleSave}
@@ -200,7 +199,7 @@ const ConfigEditor: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- Сообщение о сохранении --- */}
+            {/* Сообщение */}
             {savedMessage && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md flex items-center gap-2 animate-fade-in">
                     <CheckCircle2 size={18} />

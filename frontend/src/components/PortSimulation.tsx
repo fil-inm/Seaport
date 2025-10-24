@@ -253,7 +253,7 @@ const PortSimulation: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Основная визуализация */}
+                {/* Визуализация */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* В пути */}
                     <div className="bg-white rounded-2xl p-4 shadow">
@@ -372,12 +372,12 @@ const PortSimulation: React.FC = () => {
                             <h2 className="text-2xl font-semibold mb-4 text-lg flex items-center gap-2"><TextQuote /> Итоги моделирования</h2>
 
 
-                            {/* --- Итоговая статистика --- */}
+                            {/* Итоговая */}
                             <pre className="text-left bg-gray-50 rounded-xl p-4 text-sm mb-6 whitespace-pre-wrap">
                     {finalStats}
                 </pre>
 
-                            {/* --- Полный лог симуляции --- */}
+                            {/* Полный лог */}
                             <div className="text-left bg-gray-50 rounded-xl p-4 text-sm mb-6 whitespace-pre-wrap max-h-64 overflow-y-auto">
                                 <h3 className="flex items-center gap-2 text-2xl font-semibold text-lg mb-3 text-gray-800"><BookText /> Полный журнал событий</h3>
                                 {log
@@ -391,7 +391,7 @@ const PortSimulation: React.FC = () => {
                                     ))}
                             </div>
 
-                            {/* --- Кнопки --- */}
+                            {/* Кнопки */}
                             <div className="flex justify-center gap-3">
                                 <button
                                     onClick={() => setShowPopup(false)}
