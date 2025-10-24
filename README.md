@@ -37,69 +37,8 @@
 
 ## 🧩 Диаграмма классов
 
-```plantuml
-@startuml
-enum CargoType { BULK; LIQUID; CONTAINER }
-
-class SimulationConfig {
-  +int totalDuration
-  +int step
-  +int cranesBulk
-  +int cranesLiquid
-  +int cranesContainer
-  +int arrivalJitterMin
-  +int arrivalJitterMax
-  +int unloadExtraMin
-  +int unloadExtraMax
-  +double rateBulk
-  +double rateLiquid
-  +double rateContainer
-  +double finePerMinute
-  +int seed
-  +vector<ShipPlan> schedule
-  +json to_json() const
-  +static SimulationConfig from_json(json)
-}
-
-class ShipPlan { +string name +CargoType type +int arrival +int weight }
-
-class Ship {
-  +string name
-  +CargoType type
-  +int arrival
-  +int actualArrival
-  +int weight
-  +int unloadTime
-  +bool inQueue
-  +bool unloading
-  +bool finished
-  +optional<int> startUnload
-  +optional<int> finish
-}
-
-class Crane { +CargoType type +bool busy +int busyUntil }
-
-class Port {
-  +int now
-  +double fine
-  +SimulationConfig* cfg
-  +vector<Ship> ships
-  +vector<Crane> cranes
-  +queue<int> qBulk
-  +queue<int> qLiquid
-  +queue<int> qContainer
-  +setConfig(cfg)
-  +reset()
-  +simulateStep(delta)
-  +getState() : json
-}
-
-SimulationConfig "1" o-- "*" ShipPlan
-Port "1" --> "1" SimulationConfig
-Port "1" *-- "*" Ship
-Port "1" *-- "*" Crane
-@enduml
-```
+Визуальная структура симулятора описана в файле  
+[`diagram.puml`](diagram.puml)
 
 ---
 
@@ -170,6 +109,7 @@ Seaport/
 │  │  ├─ api/portApi.ts
 │  │  ├─ components/
 │  │  │  ├─ ConfigEditor.tsx
+│  │  │  ├─ ShipScheduleTable.tsx
 │  │  │  └─ PortSimulation.tsx
 │  │  ├─ App.tsx
 │  │  └─ main.tsx
@@ -269,12 +209,6 @@ npm run dev
 ```
 
 Открыть в браузере: [http://localhost:5173](http://localhost:5173)
-
----
-
-## 📸 Скриншоты
-
-*(вставить изображения интерфейса симуляции)*
 
 ---
 

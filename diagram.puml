@@ -1,0 +1,81 @@
+@startuml
+' ===== ENUM =====================================================
+enum CargoType {
+  BULK
+  LIQUID
+  CONTAINER
+}
+
+' ===== SimulationConfig =========================================
+class SimulationConfig {
+  +int totalDuration
+  +int step
+  +int cranesBulk
+  +int cranesLiquid
+  +int cranesContainer
+  +int arrivalJitterMin
+  +int arrivalJitterMax
+  +int unloadExtraMin
+  +int unloadExtraMax
+  +double rateBulk
+  +double rateLiquid
+  +double rateContainer
+  +double finePerMinute
+  +int seed
+  +List<ShipPlan> schedule
+  +json to_json()
+  +static from_json(json) : SimulationConfig
+}
+
+' ===== ShipPlan =================================================
+class ShipPlan {
+  +string name
+  +CargoType type
+  +int arrival
+  +int weight
+}
+
+' ===== Ship =====================================================
+class Ship {
+  +string name
+  +CargoType type
+  +int arrival
+  +int actualArrival
+  +int weight
+  +int unloadTime
+  +bool inQueue
+  +bool unloading
+  +bool finished
+  +int? startUnload
+  +int? finish
+}
+
+' ===== Crane ====================================================
+class Crane {
+  +CargoType type
+  +bool busy
+  +int busyUntil
+}
+
+' ===== Port =====================================================
+class Port {
+  +int now
+  +double fine
+  +SimulationConfig cfg
+  +List<Ship> ships
+  +List<Crane> cranes
+  +Queue<int> qBulk
+  +Queue<int> qLiquid
+  +Queue<int> qContainer
+  +setConfig(cfg)
+  +reset()
+  +simulateStep(delta)
+  +getState() : json
+}
+
+' ===== Relationships ============================================
+SimulationConfig "1" o-- "*" ShipPlan
+Port "1" --> "1" SimulationConfig
+Port "1" *-- "*" Ship
+Port "1" *-- "*" Crane
+@enduml
