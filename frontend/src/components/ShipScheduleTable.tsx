@@ -1,5 +1,5 @@
-import React from "react";
-import { Plus, Trash2, Ship } from "lucide-react";
+import React, { useRef } from "react";
+import { Plus, Trash2, Ship, Upload } from "lucide-react";
 
 interface Ship {
     name: string;
@@ -14,6 +14,8 @@ interface Props {
 }
 
 const ShipScheduleTable: React.FC<Props> = ({ ships, onChange }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const updateShip = (index: number, field: keyof Ship, value: any) => {
         const updated = [...ships];
         (updated[index] as any)[field] = value;
@@ -26,6 +28,49 @@ const ShipScheduleTable: React.FC<Props> = ({ ships, onChange }) => {
 
     const removeShip = (index: number) => {
         onChange(ships.filter((_, i) => i !== index));
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const text = event.target?.result as string;
+                const data = JSON.parse(text);
+
+                if (!Array.isArray(data)) {
+                    alert("Файл должен содержать массив объектов кораблей.");
+                    return;
+                }
+
+                const validShips = data.filter(
+                    (s) =>
+                        typeof s.name === "string" &&
+                        typeof s.type === "string" &&
+                        typeof s.arrival === "number" &&
+                        typeof s.weight === "number"
+                );
+
+                if (validShips.length === 0) {
+                    alert("Не найдено корректных записей кораблей.");
+                    return;
+                }
+
+                onChange(validShips);
+
+                alert(`Загружено ${validShips.length} кораблей из файла.`);
+            } catch (err) {
+                alert("Ошибка чтения файла: " + (err as Error).message);
+            }
+        };
+
+        reader.readAsText(file);
+        e.target.value = "";
+    };
+    const openFileDialog = () => {
+        fileInputRef.current?.click();
     };
 
     return (
@@ -99,13 +144,31 @@ const ShipScheduleTable: React.FC<Props> = ({ ships, onChange }) => {
                 </tbody>
             </table>
 
-            <button
-                onClick={addShip}
-                className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-            >
-                <Plus size={18} />
-                Добавить корабль
-            </button>
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+                <button
+                    onClick={addShip}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                    <Plus size={18} />
+                    Добавить корабль
+                </button>
+
+                <button
+                    onClick={openFileDialog}
+                    className="flex items-center gap-2 text-green-600 hover:text-green-700 font-medium"
+                >
+                    <Upload size={18} />
+                    Загрузить из файла
+                </button>
+
+                <input
+                    type="file"
+                    accept=".json"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden"
+                />
+            </div>
         </div>
     );
 };

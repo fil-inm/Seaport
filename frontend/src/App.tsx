@@ -11,7 +11,7 @@ export default function App() {
             {/* --- Верхняя панель --- */}
             <header className="bg-white shadow-sm p-4 flex items-center justify-between shrink-0">
                 <h1 className="text-2xl font-semibold flex items-center gap-2">
-                    <Anchor className="text-blue-500"/> {/* ⚓ Новый логотип */}
+                    <Anchor className="text-blue-500"/>
                     Симулятор порта
                 </h1>
 
