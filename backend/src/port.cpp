@@ -39,39 +39,47 @@ int Port::computeUnloadTime(const Ship &ship) {
   int base = static_cast<int>(std::round(ship.weight / rate));
 
   int extra = 0;
-  if (cfg->unloadExtraMax > cfg->unloadExtraMin)
+  if (cfg->unloadExtraMax > cfg->unloadExtraMin) {
     extra = randomJitter(cfg->unloadExtraMin, cfg->unloadExtraMax);
+  }
 
   return std::max(1, base + extra);
 }
 
-void Port::setConfig(SimulationConfig *c) {
-  cfg = c;
+void Port::setConfig(SimulationConfig *conf) {
+  cfg = conf;
   rng.seed(cfg->seed);
 }
 
 void Port::reset() {
-  if (!cfg)
+  if (cfg == nullptr) {
     return;
+  }
 
   now = 0;
   fine = 0.0;
   ships.clear();
   cranes.clear();
-  while (!qBulk.empty())
+  while (!qBulk.empty()) {
     qBulk.pop();
-  while (!qLiquid.empty())
+  }
+  while (!qLiquid.empty()) {
     qLiquid.pop();
-  while (!qContainer.empty())
+  }
+  while (!qContainer.empty()) {
     qContainer.pop();
+  }
 
   // --- создаём краны ---
-  for (int i = 0; i < cfg->cranesBulk; ++i)
+  for (int i = 0; i < cfg->cranesBulk; ++i) {
     cranes.push_back({CargoType::BULK, false, 0});
-  for (int i = 0; i < cfg->cranesLiquid; ++i)
+  }
+  for (int i = 0; i < cfg->cranesLiquid; ++i) {
     cranes.push_back({CargoType::LIQUID, false, 0});
-  for (int i = 0; i < cfg->cranesContainer; ++i)
+  }
+  for (int i = 0; i < cfg->cranesContainer; ++i) {
     cranes.push_back({CargoType::CONTAINER, false, 0});
+  }
 
   for (auto const &plan : cfg->schedule) {
     Ship s;
